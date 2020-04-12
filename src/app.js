@@ -37,8 +37,41 @@ app.get('/help',(req,res)=>{
 })
 
 const request = require('request')
-const geocode = require('./utils/geocode')
+const {geocode,geocodeReverse} = require('./utils/geocode')
 const forecast = require('./utils/forecast')
+
+app.get('/gpsForecast',(req,res)=>{
+
+    const latitude = req.query.latitude
+    const longitude = req.query.longitude
+
+    console.log(latitude,longitude);
+    geocodeReverse(longitude,latitude, (error,{location}={})=>{
+        if(error){ 
+            return res.send({
+            error: 'Unable to get location'
+        })
+        }
+    console.log(location);
+    
+    forecast(latitude, longitude , (error,Forecastdata)=>{
+        if(error){
+            return res.send({
+                error: 'Unable to get temp data'
+            })
+        }
+        console.log('Data: ',Forecastdata);
+        
+    res.send({
+        forecast: Forecastdata,
+        location
+
+    })
+
+    })
+})
+})
+
 
 app.get('/weather',(req,res)=>{
     if (!req.query.address){
@@ -77,10 +110,6 @@ app.get('/weather',(req,res)=>{
 
     })
     
-
-
-
-
 
 })
 
